@@ -1,0 +1,36 @@
+plugins {
+    id 'java-gradle-plugin'
+    id 'groovy'
+    id "com.gradle.plugin-publish" version "0.12.0"
+}
+
+repositories {
+    mavenCentral()
+}
+
+pluginBundle {
+    website = 'com.cloudbees.com'
+    vcsUrl = ''
+    tags = ['specs', 'CloudBees', 'internal', 'plugins']
+}
+
+gradlePlugin {
+    plugins {
+        specsPlugin {
+            id = "com.cloudbees.cd.plugins.specs"
+            displayName = "cbcd-plugins-specs"
+            description = "Collection of Gradle tasks and dependencies for CloudBees CD plugin specs projects"
+            implementationClass = "com.cloudbees.cd.plugins.build.CDPluginBuild"
+        }
+    }
+}
+
+group 'com.cloudbees.cd.plugins'
+version '1.0-SNAPSHOT'
+
+dependencies {
+    implementation "com.squareup.okhttp3:okhttp:4.7.2"
+    implementation group: 'net.sf.json-lib', name: 'json-lib', version: '2.4', classifier: 'jdk15'
+
+//    testImplementation group: 'junit', name: 'junit', version: '4.12'
+}
