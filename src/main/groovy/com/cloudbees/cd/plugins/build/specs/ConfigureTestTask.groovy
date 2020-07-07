@@ -15,7 +15,7 @@ import org.gradle.api.tasks.testing.Test
 class ConfigureTestTask extends DefaultTask {
 
     @Input
-    String environmentName = 'default'
+    String environmentName = null
 
     @Input
     boolean readSecrets = false
@@ -34,7 +34,7 @@ class ConfigureTestTask extends DefaultTask {
     String groovyVersion = '2.4.5:indy'
 
     @TaskAction
-    public void execute() {
+    public void configureProject() {
         Project project = this.getProject()
 
         ArrayList<String> dependencies = new ArrayList<>()
@@ -42,6 +42,7 @@ class ConfigureTestTask extends DefaultTask {
         dependencies.add("org.spockframework:spock-core:" + spockLibraryVersion)
         dependencies.add("com.electriccloud:ec-specs-plugins-core:" + pluginsSpecCoreVersion)
         dependencies.add("org.slf4j:slf4j-api:1.7.25")
+        println "!!!!!!!!!!!!!!!!!!!!!!!!!! INJECT !!!!!!!!!!!!!!!!!"
         injectSpecsDependencies(project, dependencies)
 
         // Environment variables from file
@@ -61,8 +62,8 @@ class ConfigureTestTask extends DefaultTask {
     }
 
     public static void injectSpecsDependencies(Project project, ArrayList<String> libs) {
-        final Configuration config = project.getConfigurations().create("specDependencies")
-                .setVisible(false)
+        final Configuration config = project.getConfigurations().getByName("compileClasspath")
+                .setVisible(true)
                 .setDescription("Adding plugin specs");
 
         config.defaultDependencies(new Action<DependencySet>() {
@@ -75,6 +76,8 @@ class ConfigureTestTask extends DefaultTask {
     }
 
     public static void addEnvironmentVariablesFromFile(Test testTask, File file) {
+
+        assert file.exists() : "File ${file.getName()} exists"
         // Read all lines except comments or empty lines
         def lines = file.readLines().findAll { !(it.startsWith('#') || it.isEmpty()) }
         lines.each() {
@@ -86,6 +89,12 @@ class ConfigureTestTask extends DefaultTask {
     }
 
     public static File resolveEnvFilepath(Project project, String environment, String filename) {
-        return new File(project.getProject().projectDir, "environments/${environment}")
+        File envDir = new File(project.getProject().projectDir, "environments/${environment}")
+        assert envDir.exists() && envDir.isDirectory() : "Environment ${environment} exists and is a directory"
+
+        File envFile = new File(envDir, filename)
+        assert envFile.exists() && envFile.isFile() : "File ${envFile.getName()} exists and is an file"
+
+        return envFile
     }
 }
