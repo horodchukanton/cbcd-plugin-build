@@ -42,18 +42,17 @@ class ConfigureTestTask extends DefaultTask {
         dependencies.add("org.spockframework:spock-core:" + spockLibraryVersion)
         dependencies.add("com.electriccloud:ec-specs-plugins-core:" + pluginsSpecCoreVersion)
         dependencies.add("org.slf4j:slf4j-api:1.7.25")
-        println "!!!!!!!!!!!!!!!!!!!!!!!!!! INJECT !!!!!!!!!!!!!!!!!"
         injectSpecsDependencies(project, dependencies)
 
         // Environment variables from file
         Test task = (Test) project.getTasksByName("test", true).first()
         if (environmentName && readEnvironmentVariables) {
             File envFile = resolveEnvFilepath(project, environmentName, 'systemtest.env')
-            addEnvironmentVariablesFromFile(task, envFile)
+            addEnvironmentVariablesFromFile(task, envFile, false)
         }
         if (environmentName && readSecrets) {
             File envFile = resolveEnvFilepath(project, environmentName, 'remote-secrets.env')
-            addEnvironmentVariablesFromFile(task, envFile)
+            addEnvironmentVariablesFromFile(task, envFile, true)
         }
 
         task.testLogging.properties.replace("showStandardStreams", true)
@@ -75,7 +74,7 @@ class ConfigureTestTask extends DefaultTask {
         });
     }
 
-    public static void addEnvironmentVariablesFromFile(Test testTask, File file) {
+    public static void addEnvironmentVariablesFromFile(Test testTask, File file, boolean mask) {
 
         assert file.exists() : "File ${file.getName()} exists"
         // Read all lines except comments or empty lines
@@ -83,7 +82,7 @@ class ConfigureTestTask extends DefaultTask {
         lines.each() {
             def strings = it.tokenize("=")
             def (key, value) = [strings[0], strings[1]]
-            println "Environment $key=${'*' * value.size()}"
+            println "Environment $key=" + mask ? ('*' * value.size()) : value
             testTask.environment(key, value)
         }
     }

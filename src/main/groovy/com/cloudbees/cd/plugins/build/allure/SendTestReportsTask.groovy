@@ -18,6 +18,13 @@ class SendTestReportsTask extends DefaultTask {
 
     @TaskAction
     void sendReports() {
+        if (projectName.toLowerCase() != projectName) {
+            throw new RuntimeException(
+                    "projectName should contains alphanumeric lowercase characters or hyphens." +
+                            " For example: 'my-project-id'"
+            )
+        }
+
         if (!serverUrl || !projectName) {
             println "Skipping sendAllureResults, as options are not defined"
             return
