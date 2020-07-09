@@ -75,6 +75,7 @@ class ConfigureTestTask extends DefaultTask {
         env.each { key, value ->
             if (System.getenv(key) != null && System.getenv(key) != '') {
                 println("Environment variable $key is already defined and will not be overwritten.")
+                return
             }
             task.environment(key, value)
         }
