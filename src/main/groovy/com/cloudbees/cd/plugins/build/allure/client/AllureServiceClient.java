@@ -52,12 +52,21 @@ public class AllureServiceClient {
   }
 
   public boolean isProjectExists(String projectName) throws IOException {
-    Map<String, Object> response = get("/projects/" + projectName);
-    debugPrintResponseMessage(response);
+    try {
+      Map<String, Object> response = get("/projects/" + projectName);
+      debugPrintResponseMessage(response);
+      String resultMessage = extractResultMessage(response);
+      assert resultMessage != null;
+      assert resultMessage.contains("Project successfully obtained");
+    } catch (RuntimeException ex) {
+      if (ex.getMessage().contains("Code is 404")) {
+        return false;
+      } else {
+        throw ex;
+      }
+    }
 
-    String resultMessage = extractResultMessage(response);
-    assert resultMessage != null;
-    return resultMessage.contains("Project successfully obtained");
+    return true;
   }
 
   private Map<String, Object> get(String path) throws IOException {
@@ -68,7 +77,12 @@ public class AllureServiceClient {
       if (response.code() != 200) {
         System.out.println("!!! REQUEST: " + request.toString());
         System.err.println("!!! RESPONSE: " + response.toString());
-        throw new RuntimeException("Failed to execute request. See the response below");
+        throw new RuntimeException(
+            "Failed to execute request. Code is "
+                + response.code()
+                + " "
+                + response.message()
+                + ". See the response above for details");
       }
 
       assert response.body() != null;
@@ -85,7 +99,7 @@ public class AllureServiceClient {
 
     Response response = client.newCall(request).execute();
 
-    if (response.code() != 200) {
+    if (response.code() >= 400) {
       System.out.println("!!! REQUEST: " + request.toString());
       System.err.println("!!! RESPONSE: " + response.toString());
       throw new RuntimeException("Failed to execute request. See the response below");
