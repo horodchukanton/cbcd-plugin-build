@@ -3,13 +3,10 @@ package com.cloudbees.cd.plugins.build.allure
 import com.cloudbees.cd.plugins.build.allure.client.AllureServiceClient
 import groovy.transform.CompileStatic
 import org.gradle.api.DefaultTask
-import org.gradle.api.Task
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.testing.Test
-
-import java.lang.reflect.Array
 
 @CompileStatic
 class SendTestReportsTask extends DefaultTask {
@@ -98,7 +95,7 @@ class SendTestReportsTask extends DefaultTask {
         this.projectName = projectName
     }
 
-    File saveEnvironment(){
+    File saveEnvironment() {
         Test test = project.getTasksByName("test", false).first() as Test
         Map<String, Object> env = test.getEnvironment()
 
@@ -107,7 +104,7 @@ class SendTestReportsTask extends DefaultTask {
             if (!v instanceof String) return
 
             String value = v as String
-            if (k.toLowerCase() =~ /(?:password|secret)$/) value = ( '*' * value.size() )
+            if (k.toLowerCase() =~ /(?:password|secret)$/) value = ('*' * value.size())
 
             fileContent += "${k}=${value}\n"
         }

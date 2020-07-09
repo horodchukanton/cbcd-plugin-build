@@ -1,10 +1,12 @@
 package com.cloudbees.cd.plugins.build.allure
 
+import groovy.transform.CompileStatic
 import io.qameta.allure.gradle.AllureExtension
 import io.qameta.allure.gradle.config.SpockConfig
 import org.gradle.api.Action
 import org.gradle.api.Project
 
+@CompileStatic
 class AllureConfiguration {
 
     public static void injectAllureConfig(Project project) {

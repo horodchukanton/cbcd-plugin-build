@@ -1,6 +1,7 @@
 package com.cloudbees.cd.plugins.build.specs
 
-import com.cloudbees.cd.plugins.build.CDPluginBuild
+
+import groovy.transform.CompileStatic
 import org.gradle.api.Action
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
@@ -9,6 +10,7 @@ import org.gradle.api.artifacts.DependencySet
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 
+@CompileStatic
 class InjectDependenciesTask extends DefaultTask {
 
     // Libraries

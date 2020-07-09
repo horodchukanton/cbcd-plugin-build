@@ -4,10 +4,10 @@ import com.cloudbees.cd.plugins.build.allure.SendTestReportsTask
 import com.cloudbees.cd.plugins.build.specs.ConfigureTestTask
 import groovy.transform.CompileStatic
 import org.gradle.api.Plugin
+import org.gradle.api.Project
 
 //import com.cloudbees.cd.plugins.build.specs.InjectDependenciesTask
 
-import org.gradle.api.Project
 import org.gradle.api.Task
 
 import static com.cloudbees.cd.plugins.build.allure.AllureConfiguration.injectAllureConfig
