@@ -8,7 +8,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Base64.Encoder;
@@ -25,8 +24,9 @@ import okhttp3.ResponseBody;
 public class AllureServiceClient {
 
   public static final MediaType JSON = MediaType.parse("application/json");
+  private static final OkHttpClient client = new OkHttpClient();
+
   private final URI serverUrl;
-  OkHttpClient client = new OkHttpClient();
 
   public AllureServiceClient(String serverUrl) throws URISyntaxException {
     this.serverUrl = new URI(serverUrl);
@@ -40,7 +40,10 @@ public class AllureServiceClient {
     payload.put("results", results);
     String json = JsonOutput.toJson(payload);
 
-    Map res = post(path, json);
+    Map<String, Object> res = post(path, json);
+    String message = extractResultMessage(res);
+    assert message != null;
+    assert message.startsWith("Results successfully sent for project_id ");
   }
 
   public void createProject(String projectName) throws IOException {
@@ -60,32 +63,33 @@ public class AllureServiceClient {
   private Map<String, Object> get(String path) throws IOException {
     Request request = new Request.Builder().url(serverUrl.toString() + path).build();
 
-    System.out.println("!!! REQUEST: " + request.toString());
     try (Response response = client.newCall(request).execute()) {
-      System.out.println("!!! RESPONSE: " + response.toString());
-      assert response.isSuccessful();
+
+      if (response.code() != 200) {
+        System.out.println("!!! REQUEST: " + request.toString());
+        System.err.println("!!! RESPONSE: " + response.toString());
+        throw new RuntimeException("Failed to execute request. See the response below");
+      }
+
       assert response.body() != null;
       return parseResponseObject(response);
     }
   }
 
   private Map<String, Object> post(String path, String content) throws IOException {
-
-    byte[] bytes = content.getBytes(StandardCharsets.UTF_8);
-
     Request request =
         new Request.Builder()
             .url(serverUrl.toString() + path)
-            .post(RequestBody.create(bytes, JSON))
-            //            .post(RequestBody.create(content, JSON))
-            .addHeader("Content-Type", "application/json")
+            .post(RequestBody.create(content, JSON))
             .build();
-
-    System.out.println("!!! REQUEST: " + request.toString());
 
     Response response = client.newCall(request).execute();
 
-    System.out.println("!!! RESPONSE: " + response.toString());
+    if (response.code() != 200) {
+      System.out.println("!!! REQUEST: " + request.toString());
+      System.err.println("!!! RESPONSE: " + response.toString());
+      throw new RuntimeException("Failed to execute request. See the response below");
+    }
 
     assert response.isSuccessful();
     return parseResponseObject(response);
@@ -166,5 +170,11 @@ public class AllureServiceClient {
       }
     }
     return null;
+  }
+
+  public String generateReport(String projectName) throws IOException {
+    Map<String, Object> res = get("/generate-report?project_id=" + projectName);
+    Map<String, Object> data = (Map<String, Object>) res.get("data");
+    return (String) data.get("report_url");
   }
 }

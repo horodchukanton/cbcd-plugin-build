@@ -14,8 +14,11 @@ class AllureConfiguration {
 
         // Adding Spock configuration for 'allure' extension
         AllureExtension ext = project.extensions.getByName('allure') as AllureExtension
+
         ext.setVersion('2.8.1')
         ext.setAspectjweaver(true)
+        ext.setClean(true)
+
         ext.reportDir = project.file('build/reports/allure-report')
         ext.useSpock(new Action<SpockConfig>() {
             @Override
