@@ -1,11 +1,11 @@
 plugins {
-    id 'java-gradle-plugin'
     id 'groovy'
+    id 'java-gradle-plugin'
     id "com.gradle.plugin-publish" version "0.12.0"
 }
 
 group 'com.cloudbees.cd.plugins'
-version '1.1.10.23'
+version '1.1.10.24'
 sourceCompatibility = 1.8
 
 repositories {

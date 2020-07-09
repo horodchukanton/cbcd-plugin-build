@@ -31,8 +31,9 @@ class SendTestReportsTask extends DefaultTask {
 
         println "sendReports. URL: \'" + serverUrl + "\' project: \'" + projectName + '\''
 
-        AllureServiceClient client = new AllureServiceClient(serverUrl)
         try {
+            AllureServiceClient client = new AllureServiceClient(serverUrl)
+
             if (!client.isProjectExists(projectName)) {
                 println "Creating project " + projectName
                 client.createProject(projectName)
@@ -51,7 +52,8 @@ class SendTestReportsTask extends DefaultTask {
 
         } catch (IOException | RuntimeException ioe) {
             System.err.println("Failed to send results:" + ioe.getMessage())
-            System.err.println("Report files will not be deleted.")
+            System.err.println("Report files will not be deleted." +
+                    " You can try to fix issue (e.g. fix the URL) and send report with './gradlew sendAllureReports'")
         }
     }
 

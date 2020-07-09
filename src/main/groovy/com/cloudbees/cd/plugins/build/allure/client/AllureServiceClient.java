@@ -23,20 +23,26 @@ import okhttp3.ResponseBody;
 
 public class AllureServiceClient {
 
-  public static final MediaType JSON = MediaType.parse("application/json");
-  private static final OkHttpClient client = new OkHttpClient();
+  private static final MediaType JSON = MediaType.parse("application/json");
+  private final OkHttpClient client;
 
   private final URI serverUrl;
 
   public AllureServiceClient(String serverUrl) throws URISyntaxException {
     this.serverUrl = new URI(serverUrl);
+    this.client = new OkHttpClient();
   }
 
   public void sendResults(String projectName, ArrayList<File> reportFiles) throws IOException {
     String path = "/send-results?project_id=" + projectName;
     ArrayList<Map<String, String>> results = buildPayload(reportFiles);
 
+    if (results.size() == 0){
+        throw new RuntimeException("No test results were generated. Nothing to send");
+    }
+
     HashMap<String, Object> payload = new HashMap<>();
+
     payload.put("results", results);
     String json = JsonOutput.toJson(payload);
 
@@ -91,10 +97,18 @@ public class AllureServiceClient {
   }
 
   private Map<String, Object> post(String path, String content) throws IOException {
+    RequestBody body;
+    try {
+      body = RequestBody.create(content, JSON);
+    } catch (RuntimeException ex){
+      System.err.println("Failed to build the JSON request body. Content was:\n" + content);
+      throw ex;
+    }
+
     Request request =
         new Request.Builder()
             .url(serverUrl.toString() + path)
-            .post(RequestBody.create(content, JSON))
+            .post(body)
             .build();
 
     Response response = client.newCall(request).execute();
@@ -139,7 +153,6 @@ public class AllureServiceClient {
   }
 
   private ArrayList<Map<String, String>> buildPayload(ArrayList<File> files) {
-
     ArrayList<Map<String, String>> results = new ArrayList<>();
     Encoder encoder = Base64.getEncoder();
 
