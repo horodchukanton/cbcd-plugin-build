@@ -3,10 +3,10 @@ package com.cloudbees.cd.plugins.build
 import com.cloudbees.cd.plugins.build.allure.SendTestReportsTask
 import com.cloudbees.cd.plugins.build.specs.ConfigureTestTask
 import groovy.transform.CompileStatic
+import org.gradle.api.Plugin
 
 //import com.cloudbees.cd.plugins.build.specs.InjectDependenciesTask
 
-import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 
@@ -23,12 +23,14 @@ public class CDPluginBuild implements Plugin<Project> {
     public void apply(Project project) {
 
         project.plugins.apply('groovy')
-        project.plugins.apply('idea')
+
+        Task configTask = project.task(testConfigurationTaskName, type: ConfigureTestTask)
+        Task allureTask = project.task(allureTaskName, type: SendTestReportsTask)
 
         // Dependencies should run right now
-        //        Task depsTask = project.getTasksByName('dependencies', false).first()
-//        project.task(injectDependenciesTaskName, type: InjectDependenciesTask)
-//        depsTask.dependsOn(injectDependenciesTaskName)
+        // Task depsTask = project.getTasksByName('dependencies', false).first()
+        // project.task(injectDependenciesTaskName, type: InjectDependenciesTask)
+        // depsTask.dependsOn(injectDependenciesTaskName)
 
         injectAllureConfig(project)
 
@@ -36,11 +38,9 @@ public class CDPluginBuild implements Plugin<Project> {
             Task testTask = project.getTasksByName('test', false).first()
 
             // Configuring tests before running
-            project.task(testConfigurationTaskName, type: ConfigureTestTask)
             testTask.dependsOn(testConfigurationTaskName)
 
             // Define new task for Allure
-            Task allureTask = project.task(allureTaskName, type: SendTestReportsTask)
             testTask.finalizedBy(allureTaskName)
             allureTask.mustRunAfter('test')
         }

@@ -34,7 +34,8 @@ class SendTestReportsTask extends DefaultTask {
 
         println "sendReports. URL: \'" + serverUrl + "\' project: \'" + projectName + '\''
 
-        AllureServiceClient client = new AllureServiceClient(serverUrl);
+        AllureServiceClient client = new AllureServiceClient(serverUrl)
+
         if (!client.isProjectExists(projectName)) {
             println "Creating project " + projectName
             client.createProject(projectName)
