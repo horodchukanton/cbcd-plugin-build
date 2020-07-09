@@ -11,7 +11,7 @@ import org.gradle.api.tasks.testing.Test
 @CompileStatic
 class SendTestReportsTask extends DefaultTask {
 
-    private String serverUrl = 'http://infra-allure.c.flow-plugin-team-test-harness.internal:5050/allure-docker-service'
+    private String serverUrl = 'http://10.142.0.44:5050/allure-docker-service'
     private String resultsDir = 'build/allure-results'
     private String projectName = ''
 
