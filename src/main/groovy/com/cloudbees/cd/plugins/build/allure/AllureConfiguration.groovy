@@ -9,7 +9,7 @@ import org.gradle.api.Project
 @CompileStatic
 class AllureConfiguration {
 
-    public static void injectAllureConfig(Project project) {
+    static void injectAllureConfig(Project project) {
 
         // Inject allure plugin
         project.plugins.apply('io.qameta.allure')

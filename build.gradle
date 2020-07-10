@@ -5,7 +5,7 @@ plugins {
 }
 
 group 'com.cloudbees.cd.plugins'
-version '1.1.10.24'
+version '1.2.1.0'
 sourceCompatibility = 1.8
 
 repositories {
@@ -16,14 +16,11 @@ repositories {
 }
 
 dependencies {
-//    compileClasspath "org.codehaus.groovy:groovy-all:2.4.5:indy"
-    api "com.squareup.okhttp3:okhttp:4.7.2"
-
+    implementation group: 'org.codehaus.groovy.modules.http-builder', name: 'http-builder', version: '0.7.1'
     // Plugin should be declared as a dependency, so we can inject it to another projects
     implementation "io.qameta.allure:allure-gradle:2.8.1"
-    implementation "groovy:groovy:1.0"
 
-//    testImplementation group: 'junit', name: 'junit', version: '4.12'
+    testImplementation group: 'org.spockframework', name: 'spock-core', version: '1.2-groovy-2.5'
 }
 
 
