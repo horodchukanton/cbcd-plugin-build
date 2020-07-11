@@ -68,7 +68,7 @@ class AllureServiceClient {
             return resp.getData() as Map<String, Object>
         }
         catch (HttpResponseException ex) {
-            handleRestException(ex, path, queryParameters)
+            throw handleRestException(ex, path, queryParameters)
         }
     }
 
@@ -82,11 +82,11 @@ class AllureServiceClient {
             return resp.getData() as Map<String, Object>
         }
         catch (HttpResponseException ex) {
-            handleRestException(ex, path, queryParameters)
+            throw handleRestException(ex, path, queryParameters)
         }
     }
 
-    private static handleRestException(
+    private static RuntimeException handleRestException(
             HttpResponseException ex, String path, Map<String, String> queryParameters
     ) throws RuntimeException {
         def resp = ex.getResponse()
@@ -95,7 +95,7 @@ class AllureServiceClient {
         System.err.println("!!! RESPONSE: " + resp.getData().toString())
         println "Request failed with status ${resp.status}"
 
-        throw new RuntimeException(
+        return new RuntimeException(
                 'Failed to execute request. Code is '
                         + resp.getStatusLine().toString()
                         + '. See the response above for details'
