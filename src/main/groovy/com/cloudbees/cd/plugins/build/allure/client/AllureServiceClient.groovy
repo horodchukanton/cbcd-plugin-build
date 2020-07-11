@@ -38,6 +38,12 @@ class AllureServiceClient {
         assert message.startsWith("Results successfully sent for project_id ")
     }
 
+    String generateReport(String projectName) throws IOException {
+        Map<String, Object> res = get("/generate-report", [project_id: projectName])
+        Map<String, Object> data = (Map<String, Object>) res.get("data")
+        return (String) data.get("report_url")
+    }
+
     void createProject(String projectName) throws IOException {
         Map<String, Object> response = post("/projects", '{"id":"' + projectName + '"}')
         debugPrintResponseMessage(response)
@@ -162,18 +168,5 @@ class AllureServiceClient {
         }
         return null
     }
-
-    String generateReport(String projectName) throws IOException {
-        Map<String, Object> res = get("/generate-report", [project_id: projectName])
-        Map<String, Object> data = (Map<String, Object>) res.get("data")
-        return (String) data.get("report_url")
-    }
-
-    private static String encodeValue(String value) {
-        try {
-            return URLEncoder.encode(value, StandardCharsets.UTF_8.toString());
-        } catch (UnsupportedEncodingException ex) {
-            throw new RuntimeException(ex.getCause());
-        }
-    }
+    
 }
