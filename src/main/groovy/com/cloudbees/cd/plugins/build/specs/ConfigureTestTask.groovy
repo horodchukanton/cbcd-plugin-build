@@ -1,5 +1,6 @@
 package com.cloudbees.cd.plugins.build.specs
 
+import groovy.json.JsonSlurper
 import groovy.transform.CompileStatic
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
@@ -15,6 +16,9 @@ class ConfigureTestTask extends DefaultTask {
 
     @Input
     boolean readSecrets = false
+
+    @Input
+    String secretsProject = 'flow-plugin-team-test-harness'
 
     @Input
     boolean readEnvironmentVariables = false
@@ -49,7 +53,7 @@ class ConfigureTestTask extends DefaultTask {
         applyEnvironmentTo(task, env)
     }
 
-    private static Map<String, String> readEnvironmentFrom(File file) {
+    private Map<String, String> readEnvironmentFrom(File file) {
         assert file.exists(): "File ${file.getName()} exists"
 
         LinkedHashMap<String, String> env = new LinkedHashMap<>()
@@ -65,20 +69,87 @@ class ConfigureTestTask extends DefaultTask {
         return env
     }
 
-    private static void showEnvironmentVariables(Map<String, String> env, boolean mask) {
+    private void showEnvironmentVariables(Map<String, String> env, boolean mask) {
         env.each { key, value ->
             println "Environment $key=" + (mask ? ('*' * value.size()) : value)
         }
     }
 
-    private static void applyEnvironmentTo(Test task, Map<String, String> env) {
+    private void applyEnvironmentTo(Test task, Map<String, String> env) {
         env.each { key, value ->
+            if (value =~ /\(\(/) {
+                try {
+                    value = resolveSecret(value)
+                } catch (Throwable e) {
+                    println("Failed to resolve secret: $e.message")
+                }
+            }
             if (System.getenv(key) != null && System.getenv(key) != '') {
                 println("Environment variable $key is already defined and will not be overwritten.")
                 return
             }
             task.environment(key, value)
         }
+    }
+
+    private String resolveSecret(String value) {
+        println "Using project $secretsProject"
+        String secretName = value.replaceAll(/\(\(GCP-SECRET:\s+/, '').replaceAll(/\)\)/, '')
+        println "Trying to resolve secret $secretName"
+        String versionsRaw = executeCommand("gcloud", "--project", secretsProject,
+            "beta", "secrets", "versions", "list", secretName, "--format", "json")
+        List<Map> versions = new JsonSlurper().parseText(versionsRaw) as List<Map>
+        int latestVersion = 0
+        for (Map version in versions) {
+            if (version.get('state') == 'ENABLED') {
+                String name = version.name
+                int v = name.split(/\//).last() as int
+                if (v > latestVersion) {
+                    latestVersion = v
+                }
+            }
+        }
+
+        if (latestVersion) {
+            println "Found secret version $latestVersion"
+            String secret = executeCommand("gcloud",
+                "--project",
+                secretsProject,
+                "beta",
+                "secrets",
+                "versions",
+                "access",
+                "--secret",
+                secretName,
+                latestVersion as String)
+            return secret
+        }
+        return value
+    }
+
+    private static String executeCommand(String... cmd) {
+        ProcessBuilder pb = new ProcessBuilder(cmd)
+        Process process = pb.start()
+
+        BufferedReader stdOut = new BufferedReader(new InputStreamReader(process.getInputStream()))
+        BufferedReader stdError = new BufferedReader(new InputStreamReader(process.getErrorStream()))
+        int code = process.waitFor()
+
+        StringBuilder out = new StringBuilder()
+        String line
+        while (line = stdOut.readLine()) {
+            out.append(line)
+            out.append(System.lineSeparator())
+        }
+        StringBuilder err = new StringBuilder()
+        while (line = stdError.readLines()) {
+            err.append(line)
+            err.append(System.lineSeparator())
+        }
+        if (code != 0) {
+            throw new RuntimeException("Failed to execute command: exit code $code, stderr: $err")
+        }
+        return out.toString()
     }
 
     private File resolveEnvFilepath(String environmentName, String filename) {
