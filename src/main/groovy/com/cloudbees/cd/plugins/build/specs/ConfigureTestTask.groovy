@@ -77,7 +77,7 @@ class ConfigureTestTask extends DefaultTask {
 
     private void applyEnvironmentTo(Test task, Map<String, String> env) {
         env.each { key, value ->
-            if (value =~ /\(\(/) {
+            if (value =~ /GCP-SECRET/) {
                 try {
                     value = resolveSecret(value)
                 } catch (Throwable e) {
