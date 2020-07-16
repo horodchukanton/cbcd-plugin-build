@@ -80,6 +80,7 @@ class ConfigureTestTask extends DefaultTask {
             if (value =~ /GCP-SECRET/) {
                 try {
                     value = resolveSecret(value)
+                    println "Resolved secret $key to ${'*' * value.size()}"
                 } catch (Throwable e) {
                     println("Failed to resolve secret: $e.message")
                 }
@@ -122,7 +123,7 @@ class ConfigureTestTask extends DefaultTask {
                 "--secret",
                 secretName,
                 latestVersion as String)
-            return secret
+            return secret.trim()
         }
         return value
     }
