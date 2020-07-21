@@ -49,6 +49,17 @@ class ConfigureTestTask extends DefaultTask {
     private void applyEnvironmentVariables(Test task, String filename, boolean mask) {
         File envFile = resolveEnvFilepath(environmentName, filename)
         Map<String, String> env = readEnvironmentFrom(envFile)
+
+        env.each { String k, String v ->
+            if (System.getenv(k) != null && System.getenv(k) != '') {
+                println("Environment variable $k is already defined and will not be overwritten.")
+                env.remove(k)
+                v = System.getenv(k)
+            }
+
+            EnvironmentContainer.addVar(k, (mask ? ('*' * v.size()) : v))
+        }
+
         showEnvironmentVariables(env, mask)
         applyEnvironmentTo(task, env)
     }
@@ -84,10 +95,6 @@ class ConfigureTestTask extends DefaultTask {
                 } catch (Throwable e) {
                     println("Failed to resolve secret: $e.message")
                 }
-            }
-            if (System.getenv(key) != null && System.getenv(key) != '') {
-                println("Environment variable $key is already defined and will not be overwritten.")
-                return
             }
             task.environment(key, value)
         }
