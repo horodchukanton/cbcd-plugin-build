@@ -1,10 +1,10 @@
 package com.cloudbees.cd.plugins.build.allure
 
 import com.cloudbees.cd.plugins.build.allure.client.AllureServiceClient
+import com.cloudbees.cd.plugins.build.specs.EnvironmentContainer
 import groovy.transform.CompileStatic
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.testing.Test
 
@@ -12,7 +12,6 @@ import org.gradle.api.tasks.testing.Test
 class SendTestReportsTask extends DefaultTask {
 
     private String serverUrl = 'http://10.201.2.37:5050/allure-docker-service'
-    private String resultsDir = 'build/allure-results'
     private String projectName = ''
 
     @TaskAction
@@ -60,7 +59,7 @@ class SendTestReportsTask extends DefaultTask {
 
     private ArrayList<File> collectReportFiles() {
         ArrayList<File> files = new ArrayList<>()
-        File dir = new File(resultsDir)
+        File dir = new File(this.project.getBuildDir(), 'allure-results')
         for (File f : dir.listFiles()) {
             if (f.getName() =~ /^\.+$/) {
                 continue
@@ -79,15 +78,6 @@ class SendTestReportsTask extends DefaultTask {
         this.serverUrl = serverUrl
     }
 
-    @InputDirectory
-    String getResultsDir() {
-        return resultsDir
-    }
-
-    void setResultsDir(String resultsDir) {
-        this.resultsDir = resultsDir
-    }
-
     @Input
     String getProjectName() {
         return projectName
@@ -98,16 +88,11 @@ class SendTestReportsTask extends DefaultTask {
     }
 
     File saveEnvironment() {
-        Test test = project.getTasksByName("test", false).first() as Test
-        Map<String, Object> env = test.getEnvironment()
+        Map<String, String> env = EnvironmentContainer.getAll()
 
         String fileContent = ""
         env.each { String k, Object v ->
-            if (!v instanceof String) return
-
             String value = v as String
-            if (k.toLowerCase() =~ /(?:password|secret)$/) value = ('*' * value.size())
-
             fileContent += "${k}=${value}\n"
         }
 
