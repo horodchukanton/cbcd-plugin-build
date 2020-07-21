@@ -54,7 +54,7 @@ class AllureServiceClient {
             Map<String, Object> response = get("/projects/" + projectName)
             assert response['data']['project']['id'] == projectName
         } catch (RuntimeException ex) {
-            if (ex.getMessage().contains("Request failed with status 404")) {
+            if (ex.getMessage().contains("404 NOT FOUND")) {
                 return false
             } else {
                 throw ex

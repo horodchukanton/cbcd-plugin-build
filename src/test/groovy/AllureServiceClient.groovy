@@ -1,5 +1,6 @@
 import com.cloudbees.cd.plugins.build.allure.client.AllureServiceClient
 import spock.lang.FailsWith
+import spock.lang.IgnoreRest
 import spock.lang.Specification
 
 class AllureServiceClientTest extends Specification {
@@ -26,14 +27,13 @@ class AllureServiceClientTest extends Specification {
         assert resp
     }
 
-    @FailsWith(RuntimeException)
     def check404() {
         given:
         def client = new AllureServiceClient(URL)
         String projectName = UUID.randomUUID().toString().toLowerCase()
 
         expect:
-        client.isProjectExists(projectName)
+        !client.isProjectExists(projectName)
     }
 
     def listProjects() {
@@ -89,6 +89,17 @@ class AllureServiceClientTest extends Specification {
         String created = resp['data']['report_url']
         then:
         assert created != null
+    }
+
+    def autoCreation(){
+        given:
+        def client = new AllureServiceClient(URL)
+        String projectName = UUID.randomUUID().toString().toLowerCase()
+
+        if (!client.isProjectExists(projectName)) {
+            println "Creating project " + projectName
+            client.createProject(projectName)
+        }
     }
 
 }
