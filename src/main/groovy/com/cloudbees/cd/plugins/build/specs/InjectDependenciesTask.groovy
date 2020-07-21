@@ -24,7 +24,7 @@ class InjectDependenciesTask extends DefaultTask {
     String groovyVersion = '2.4.5:indy'
 
     @TaskAction
-    public void configureProject() {
+    void configureProject() {
         Project project = this.getProject()
 
         ArrayList<String> dependencies = new ArrayList<>()
@@ -36,13 +36,13 @@ class InjectDependenciesTask extends DefaultTask {
         injectSpecsDependencies(project, dependencies)
     }
 
-    public static void injectSpecsDependencies(Project project, ArrayList<String> libs) {
+    static void injectSpecsDependencies(Project project, ArrayList<String> libs) {
         final Configuration config = project.getConfigurations().getByName("pluginSpecsDeps")
                 .setVisible(true)
-                .setDescription("Adding plugin specs");
+                .setDescription("Adding plugin specs")
 
         config.defaultDependencies(new Action<DependencySet>() {
-            public void execute(DependencySet dependencies) {
+            void execute(DependencySet dependencies) {
                 for (String dep : libs) {
                     Map dependency = ["implementation": dep]
                     dependencies.add(project.getDependencies().project(dependency))

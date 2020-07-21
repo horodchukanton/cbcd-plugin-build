@@ -5,27 +5,23 @@ import com.cloudbees.cd.plugins.build.specs.ConfigureTestTask
 import groovy.transform.CompileStatic
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-
-//import com.cloudbees.cd.plugins.build.specs.InjectDependenciesTask
-
 import org.gradle.api.Task
 
 import static com.cloudbees.cd.plugins.build.allure.AllureConfiguration.injectAllureConfig
 
 @CompileStatic
-public class CDPluginBuild implements Plugin<Project> {
+class CDPluginBuild implements Plugin<Project> {
 
     public static final String NAME = "cd-plugin-build"
     public static final String allureTaskName = "sendAllureReports"
     public static final String testConfigurationTaskName = "configureTests"
 //    public static final String injectDependenciesTaskName = "injectDependencies"
 
-    public void apply(Project project) {
+    void apply(Project project) {
 
         project.plugins.apply('groovy')
 
         Task configTask = project.task(testConfigurationTaskName, type: ConfigureTestTask)
-        Task allureTask = project.task(allureTaskName, type: SendTestReportsTask)
 
         // Dependencies should run right now
         // Task depsTask = project.getTasksByName('dependencies', false).first()
@@ -33,6 +29,7 @@ public class CDPluginBuild implements Plugin<Project> {
         // depsTask.dependsOn(injectDependenciesTaskName)
 
         injectAllureConfig(project)
+        Task allureTask = project.task(allureTaskName, type: SendTestReportsTask)
 
         project.afterEvaluate {
             Task testTask = project.getTasksByName('test', false).first()

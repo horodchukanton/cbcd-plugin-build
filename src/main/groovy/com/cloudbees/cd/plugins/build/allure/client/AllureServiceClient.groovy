@@ -7,7 +7,6 @@ import groovyx.net.http.HttpResponseDecorator
 import groovyx.net.http.HttpResponseException
 import groovyx.net.http.RESTClient
 
-import java.nio.charset.StandardCharsets
 import java.util.Base64.Encoder
 
 @CompileStatic
@@ -168,5 +167,5 @@ class AllureServiceClient {
         }
         return null
     }
-    
+
 }

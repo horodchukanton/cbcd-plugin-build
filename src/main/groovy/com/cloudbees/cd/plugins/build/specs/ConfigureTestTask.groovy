@@ -98,7 +98,7 @@ class ConfigureTestTask extends DefaultTask {
         String secretName = value.replaceAll(/\(\(GCP-SECRET:\s+/, '').replaceAll(/\)\)/, '')
         println "Trying to resolve secret $secretName"
         String versionsRaw = executeCommand("gcloud", "--project", secretsProject,
-            "beta", "secrets", "versions", "list", secretName, "--format", "json")
+                "beta", "secrets", "versions", "list", secretName, "--format", "json")
         List<Map> versions = new JsonSlurper().parseText(versionsRaw) as List<Map>
         int latestVersion = 0
         for (Map version in versions) {
@@ -114,15 +114,15 @@ class ConfigureTestTask extends DefaultTask {
         if (latestVersion) {
             println "Found secret version $latestVersion"
             String secret = executeCommand("gcloud",
-                "--project",
-                secretsProject,
-                "beta",
-                "secrets",
-                "versions",
-                "access",
-                "--secret",
-                secretName,
-                latestVersion as String)
+                    "--project",
+                    secretsProject,
+                    "beta",
+                    "secrets",
+                    "versions",
+                    "access",
+                    "--secret",
+                    secretName,
+                    latestVersion as String)
             return secret.trim()
         }
         return value
