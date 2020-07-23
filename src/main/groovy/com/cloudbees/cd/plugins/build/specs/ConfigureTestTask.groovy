@@ -12,16 +12,16 @@ import org.gradle.api.tasks.testing.Test
 class ConfigureTestTask extends DefaultTask {
 
     @Input
-    String environmentName = ''
+    String environmentName = project.findProperty('envName') ?: 'default'
 
     @Input
-    boolean readSecrets = false
+    boolean readSecrets = true
+
+    @Input
+    boolean readEnvironmentVariables = true
 
     @Input
     String secretsProject = 'flow-plugin-team-test-harness'
-
-    @Input
-    boolean readEnvironmentVariables = false
 
     @TaskAction
     void configureProject() {
@@ -54,14 +54,22 @@ class ConfigureTestTask extends DefaultTask {
             return
         }
 
-        env.each { String k, String v ->
-            if (System.getenv(k) != null && System.getenv(k) != '') {
-                println("Environment variable $k is already defined and will not be overwritten.")
-                env.remove(k)
-                v = System.getenv(k)
+        env.each { String key, String value ->
+            if (System.getenv(key) != null && System.getenv(key) != '') {
+                println("Environment variable $key is already defined and will not be overwritten.")
+                env.remove(key)
+                value = System.getenv(key)
             }
-
-            EnvironmentContainer.addVar(k, (mask ? ('*' * v.size()) : v))
+            if (value =~ /GCP-SECRET/) {
+                try {
+                    value = resolveSecret(value)
+                    println "Resolved secret $key to ${'*' * value.size()}"
+                } catch (Throwable e) {
+                    println("Failed to resolve secret: $e.message")
+                }
+                mask = true
+            }
+            EnvironmentContainer.addVar(key, (mask ? ('*' * value.size()) : value))
         }
 
         showEnvironmentVariables(env, mask)
@@ -95,14 +103,6 @@ class ConfigureTestTask extends DefaultTask {
 
     private void applyEnvironmentTo(Test task, Map<String, String> env) {
         env.each { key, value ->
-            if (value =~ /GCP-SECRET/) {
-                try {
-                    value = resolveSecret(value)
-                    println "Resolved secret $key to ${'*' * value.size()}"
-                } catch (Throwable e) {
-                    println("Failed to resolve secret: $e.message")
-                }
-            }
             task.environment(key, value)
         }
     }
@@ -174,8 +174,6 @@ class ConfigureTestTask extends DefaultTask {
         assert envDir.exists() && envDir.isDirectory(): "Environment ${environmentName} exists and is a directory"
 
         File envFile = new File(envDir, filename)
-        assert envFile.exists() && envFile.isFile(): "File ${envFile.getName()} exists and is an file"
-
         return envFile
     }
 
