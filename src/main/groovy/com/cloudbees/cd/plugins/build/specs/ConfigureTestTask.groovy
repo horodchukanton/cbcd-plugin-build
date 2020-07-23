@@ -79,9 +79,10 @@ class ConfigureTestTask extends DefaultTask {
             }
 
             EnvironmentContainer.addVar(key, (mask ? ('*' * value.size()) : value))
+            env.replace(key, value)
         }
 
-        showEnvironmentVariables(env, mask)
+        showEnvironmentVariables(EnvironmentContainer.getAll())
         applyEnvironmentTo(task, env)
     }
 
@@ -104,9 +105,9 @@ class ConfigureTestTask extends DefaultTask {
         return env
     }
 
-    private void showEnvironmentVariables(Map<String, String> env, boolean mask) {
+    private void showEnvironmentVariables(Map<String, String> env) {
         env.each { key, value ->
-            println "Environment $key=" + (mask ? ('*' * value.size()) : value)
+            println "Environment $key=${value}"
         }
     }
 
