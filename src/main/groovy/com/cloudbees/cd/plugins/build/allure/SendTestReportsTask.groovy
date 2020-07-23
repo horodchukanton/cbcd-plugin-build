@@ -6,12 +6,11 @@ import groovy.transform.CompileStatic
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
-import org.gradle.api.tasks.testing.Test
 
 @CompileStatic
 class SendTestReportsTask extends DefaultTask {
 
-    private String serverUrl = 'http://10.201.2.37:5050/allure-docker-service'
+    private String serverUrl = project.findProperty('allureReportsServerUrl') ?: 'http://10.201.2.37:5050/allure-docker-service'
     private String projectName = ''
 
     @TaskAction
@@ -24,14 +23,19 @@ class SendTestReportsTask extends DefaultTask {
         }
 
         if (!serverUrl || !projectName) {
-            println "Skipping sendAllureResults, as options 'serverUrl' and 'projectName' are not defined"
+            println "Will not run sendAllureReports, as options 'serverUrl' and 'projectName' are not defined"
             return
         }
 
-        println "sendReports. URL: \'" + serverUrl + "\' project: \'" + projectName + '\''
+        println "Reporting to URL: \'" + serverUrl + "\' with a project: \'" + projectName + '\''
 
         try {
             AllureServiceClient client = new AllureServiceClient(serverUrl)
+
+            if (!client.isServerAccessible()){
+                println("Failed to connect the Allure Reports Server. Skipping")
+                return
+            }
 
             if (!client.isProjectExists(projectName)) {
                 println "Creating project " + projectName

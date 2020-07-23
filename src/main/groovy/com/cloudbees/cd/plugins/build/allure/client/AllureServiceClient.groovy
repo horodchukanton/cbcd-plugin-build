@@ -63,6 +63,21 @@ class AllureServiceClient {
         return true
     }
 
+    boolean isServerAccessible() {
+        try {
+            final URL url = client.getUri() as URL
+            HttpURLConnection huc = (HttpURLConnection) url.openConnection()
+            huc.setRequestMethod("HEAD")
+            huc.setConnectTimeout(3000)
+            int responseCode = huc.getResponseCode();
+            return huc.getResponseCode() > 0
+        }
+        catch (NoRouteToHostException | SocketTimeoutException | ConnectException ex) {
+            println("Failed to connect the Allure Service at ${client.getUri()}: " + ex.getMessage())
+            return false
+        }
+    }
+
     Map<String, Object> get(String path, Map<String, String> queryParameters = [:]) throws IOException {
         try {
             HttpResponseDecorator resp = client.get(

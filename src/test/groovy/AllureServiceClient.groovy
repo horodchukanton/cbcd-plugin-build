@@ -1,6 +1,4 @@
 import com.cloudbees.cd.plugins.build.allure.client.AllureServiceClient
-import spock.lang.FailsWith
-import spock.lang.IgnoreRest
 import spock.lang.Specification
 
 class AllureServiceClientTest extends Specification {
@@ -91,7 +89,7 @@ class AllureServiceClientTest extends Specification {
         assert created != null
     }
 
-    def autoCreation(){
+    def autoCreation() {
         given:
         def client = new AllureServiceClient(URL)
         String projectName = UUID.randomUUID().toString().toLowerCase()
@@ -100,6 +98,20 @@ class AllureServiceClientTest extends Specification {
             println "Creating project " + projectName
             client.createProject(projectName)
         }
+    }
+
+    def isServerAccessible() {
+        given:
+        def valid_url = new AllureServiceClient(URL)
+//        def invalid_url = new AllureServiceClient('whatever')
+        def wrong_url = new AllureServiceClient('https://google.com:5050')
+        def inaccessible_url = new AllureServiceClient('https://10.0.0.1:5050')
+
+        expect:
+        valid_url.isServerAccessible()
+//        !invalid_url.isServerAccessible()
+        !wrong_url.isServerAccessible()
+        !inaccessible_url.isServerAccessible()
     }
 
 }
