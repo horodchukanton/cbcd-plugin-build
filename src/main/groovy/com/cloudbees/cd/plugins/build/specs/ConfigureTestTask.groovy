@@ -54,12 +54,20 @@ class ConfigureTestTask extends DefaultTask {
             return
         }
 
-        env.each { String key, String value ->
+        // Simple for iteration will throw ConcurrentModificationException when removing element
+        Iterator<String> iterator = env.keySet().iterator()
+        while (iterator.hasNext()) {
+            String key = iterator.next()
+            String value = env.get(key)
+
+            // Checking if variable is already defined
             if (System.getenv(key) != null && System.getenv(key) != '') {
                 println("Environment variable $key is already defined and will not be overwritten.")
-                env.remove(key)
+                iterator.remove()
                 value = System.getenv(key)
             }
+
+            // Checking if it is a secret we have to resolve
             if (value =~ /GCP-SECRET/) {
                 try {
                     value = resolveSecret(value)
@@ -69,6 +77,7 @@ class ConfigureTestTask extends DefaultTask {
                 }
                 mask = true
             }
+
             EnvironmentContainer.addVar(key, (mask ? ('*' * value.size()) : value))
         }
 
