@@ -50,6 +50,10 @@ class ConfigureTestTask extends DefaultTask {
         File envFile = resolveEnvFilepath(environmentName, filename)
         Map<String, String> env = readEnvironmentFrom(envFile)
 
+        if (null == env) {
+            return
+        }
+
         env.each { String k, String v ->
             if (System.getenv(k) != null && System.getenv(k) != '') {
                 println("Environment variable $k is already defined and will not be overwritten.")
@@ -65,7 +69,10 @@ class ConfigureTestTask extends DefaultTask {
     }
 
     private Map<String, String> readEnvironmentFrom(File file) {
-        assert file.exists(): "File ${file.getName()} exists"
+        if (!file.exists()) {
+            println("File ${file.path} does not exist and will be skipped.")
+            return null
+        }
 
         LinkedHashMap<String, String> env = new LinkedHashMap<>()
 
