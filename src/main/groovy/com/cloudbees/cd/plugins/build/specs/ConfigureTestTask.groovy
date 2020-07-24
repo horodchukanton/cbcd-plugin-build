@@ -215,12 +215,10 @@ COMMANDER_USER: '${user}'
 COMMANDER_PASSWORD: '${'*' * password.size()}'
 """
 
-        commanderProperties.put("COMMANDER_SECURE", "1")
-        commanderProperties.put("COMMANDER_SERVER", server)
-        commanderProperties.put("COMMANDER_USER", user)
-        commanderProperties.put("COMMANDER_PASSWORD", password)
-
-        applyEnvironmentTo(task, commanderProperties)
+        task.systemProperty("COMMANDER_SECURE", "1")
+        task.systemProperty("COMMANDER_SERVER", server)
+        task.systemProperty("COMMANDER_USER", user)
+        task.systemProperty("COMMANDER_PASSWORD", password)
     }
 
     private String resolvePropertyWithDefault(String envVarName, String propertyName, String defaultValue) {
