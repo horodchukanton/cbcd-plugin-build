@@ -39,6 +39,8 @@ class ConfigureTestTask extends DefaultTask {
             }
         }
 
+        applyCommanderEnvironment(task)
+
         task.testLogging.showStandardStreams = true
         task.testLogging.events("passed", "skipped", "failed")
 
@@ -185,6 +187,44 @@ class ConfigureTestTask extends DefaultTask {
 
         File envFile = new File(envDir, filename)
         return envFile
+    }
+
+    private void applyCommanderEnvironment(Test task) {
+        Map<String, String> commanderProperties = new LinkedHashMap<>()
+
+        String server = resolvePropertyWithDefault(
+                "COMMANDER_SERVER",
+                "server",
+                "localhost"
+        )
+        String user = resolvePropertyWithDefault(
+                "COMMANDER_USER",
+                "user",
+                "admin"
+        )
+        String password = resolvePropertyWithDefault(
+                "COMMANDER_PASSWORD",
+                "password",
+                "changeme"
+        )
+
+        println """
+COMMANDER_SERVER: '${server}'
+COMMANDER_SECURE: '1'
+COMMANDER_USER: '${user}'
+COMMANDER_PASSWORD: '${'*' * password.size()}'
+"""
+
+        commanderProperties.put("COMMANDER_SECURE", "1")
+        commanderProperties.put("COMMANDER_SERVER", server)
+        commanderProperties.put("COMMANDER_USER", user)
+        commanderProperties.put("COMMANDER_PASSWORD", password)
+
+        applyEnvironmentTo(task, commanderProperties)
+    }
+
+    private String resolvePropertyWithDefault(String envVarName, String propertyName, String defaultValue) {
+        return project.findProperty(propertyName) ?: System.getenv(envVarName) ?: defaultValue
     }
 
 }

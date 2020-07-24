@@ -44,7 +44,7 @@ class AllureServiceClient {
     }
 
     void createProject(String projectName) throws IOException {
-        Map<String, Object> response = post("/projects", '{"id":"' + projectName + '"}')
+        Map<String, Object> response = post("/projects", JsonOutput.toJson(['id': projectName]))
         debugPrintResponseMessage(response)
     }
 
@@ -88,7 +88,7 @@ class AllureServiceClient {
             return resp.getData() as Map<String, Object>
         }
         catch (HttpResponseException ex) {
-            throw handleRestException(ex, path, queryParameters)
+            throw handleRestException(ex, path, null, queryParameters)
         }
     }
 
@@ -102,16 +102,16 @@ class AllureServiceClient {
             return resp.getData() as Map<String, Object>
         }
         catch (HttpResponseException ex) {
-            throw handleRestException(ex, path, queryParameters)
+            throw handleRestException(ex, path, content, queryParameters)
         }
     }
 
     private static RuntimeException handleRestException(
-            HttpResponseException ex, String path, Map<String, String> queryParameters
+            HttpResponseException ex, String path, String content = null, Map<String, String> queryParameters
     ) throws RuntimeException {
         def resp = ex.getResponse()
 
-        System.err.println("!!! REQUEST: " + path + " " + queryParameters.toString())
+        System.err.println("!!! REQUEST $path, Content: '$content', Query: " + queryParameters.toString())
         System.err.println("!!! RESPONSE: " + resp.getData().toString())
         println "Request failed with status ${resp.status}"
 
