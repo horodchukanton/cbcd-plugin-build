@@ -23,6 +23,23 @@ class ConfigureTestTask extends DefaultTask {
     @Input
     String secretsProject = 'flow-plugin-team-test-harness'
 
+    static boolean isWindows() {
+        return (System.getenv("OS") =~ /Windows/)
+    }
+
+    static File findDirForProgram(String program) {
+        String path = System.getenv("PATH")
+
+        for (String dirname : path.split(File.pathSeparator).reverse()) {
+            File file = new File(dirname, program)
+            if (file.isFile() && file.canExecute()) {
+                return new File(dirname)
+            }
+        }
+
+        return null
+    }
+
     @TaskAction
     void configureProject() {
         Project project = this.getProject()
@@ -88,7 +105,7 @@ class ConfigureTestTask extends DefaultTask {
         applyEnvironmentTo(task, env)
     }
 
-    private Map<String, String> readEnvironmentFrom(File file) {
+    Map<String, String> readEnvironmentFrom(File file) {
         if (!file.exists()) {
             println("File ${file.path} does not exist and will be skipped.")
             return null
@@ -119,7 +136,7 @@ class ConfigureTestTask extends DefaultTask {
         }
     }
 
-    private String resolveSecret(String value) {
+    String resolveSecret(String value) {
         println "Using project $secretsProject"
         String secretName = value.replaceAll(/\(\(GCP-SECRET:\s+/, '').replaceAll(/\)\)/, '')
         println "Trying to resolve secret $secretName"
@@ -156,6 +173,18 @@ class ConfigureTestTask extends DefaultTask {
 
     private static String executeCommand(String... cmd) {
         ProcessBuilder pb = new ProcessBuilder(cmd)
+
+        // assuming first element of cmd is command name
+        if (isWindows()) {
+            String program = cmd[0];
+            File programDir = findDirForProgram(program)
+
+            if (programDir == null) {
+                throw new RuntimeException("Cannot find gcloud executable in PATH")
+            }
+            pb.directory(programDir)
+        }
+
         Process process = pb.start()
 
         BufferedReader stdOut = new BufferedReader(new InputStreamReader(process.getInputStream()))
