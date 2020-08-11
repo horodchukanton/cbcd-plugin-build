@@ -105,7 +105,7 @@ class ConfigureTestTask extends DefaultTask {
         applyEnvironmentTo(task, env)
     }
 
-    Map<String, String> readEnvironmentFrom(File file) {
+    static Map<String, String> readEnvironmentFrom(File file) {
         if (!file.exists()) {
             println("File ${file.path} does not exist and will be skipped.")
             return null
@@ -124,13 +124,13 @@ class ConfigureTestTask extends DefaultTask {
         return env
     }
 
-    private void showEnvironmentVariables(Map<String, String> env) {
+    private static void showEnvironmentVariables(Map<String, String> env) {
         env.each { key, value ->
             println "Environment $key=${value}"
         }
     }
 
-    private void applyEnvironmentTo(Test task, Map<String, String> env) {
+    private static void applyEnvironmentTo(Test task, Map<String, String> env) {
         env.each { key, value ->
             task.environment(key, value)
         }
@@ -176,7 +176,7 @@ class ConfigureTestTask extends DefaultTask {
 
         // assuming first element of cmd is command name
         if (isWindows()) {
-            String program = cmd[0];
+            String program = cmd[0]
             File programDir = findDirForProgram(program)
 
             if (programDir == null) {
@@ -219,8 +219,6 @@ class ConfigureTestTask extends DefaultTask {
     }
 
     private void applyCommanderEnvironment(Test task) {
-        Map<String, String> commanderProperties = new LinkedHashMap<>()
-
         String server = resolvePropertyWithDefault(
                 "COMMANDER_SERVER",
                 "server",
