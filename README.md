@@ -70,8 +70,13 @@ Finalizes the 'test' task.
 Usage:
 ```
 sendAllureReports {
-  serverUrl 'http://reports-server:5050/allure-docker-service'
+  // Mandatory
   projectName '<plugin-name>'
+  reportsBaseUrl 'https://plugin-reports.nimbus.beescloud.com/allure-docker-service/'
+  
+  // Optional, default value is a special GCP resource location
+  serverUrl 'http://reports-server:5050/allure-docker-service'
+
 }
 ``` 
 
@@ -81,9 +86,13 @@ Before test task starts, environment variables will be set up for the task.
 Usage:
 ```
 configureTests {
+  // Optional, rvalues are same as the default values
   environmentName = findProperty('envName') ?: 'default'
-  readSecrets = false
-  readEnvironmentVariables = false
+  environmentLocation = getProject().getProjectDir()
+  
+  // Warning will be shown if file does not exist
+  readSecrets = true
+  readEnvironmentVariables = true
 }
 ``` 
 

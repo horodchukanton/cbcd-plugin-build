@@ -1,9 +1,10 @@
+import com.cloudbees.cd.plugins.build.allure.SendTestReportsTask
 import com.cloudbees.cd.plugins.build.allure.client.AllureServiceClient
 import spock.lang.Specification
 
 class AllureServiceClientTest extends Specification {
 
-    static final URL = 'http://localhost:5050/allure-service-docker'
+    static final URL = 'http://localhost:5050/allure-docker-service'
     static final String projectName = UUID.randomUUID().toString().toLowerCase()
 
     def constructor() {
@@ -113,5 +114,40 @@ class AllureServiceClientTest extends Specification {
         !wrong_url.isServerAccessible()
         !inaccessible_url.isServerAccessible()
     }
+
+    def transformUrl_sameRoot(){
+        given:
+        def reportUrl = URL + '/projects/temp-project/reports/latest.html'
+        def baseUrl = 'https://plugin-reports.nimbus.beescloud.com/allure-docker-service/'
+
+        when:
+        URI transformed = new URI(SendTestReportsTask.transformToPublicUrl(reportUrl, baseUrl))
+
+        then:
+        verifyAll {
+            transformed.port == -1 || transformed.port == 443
+            transformed.scheme == 'https'
+            transformed.host == 'plugin-reports.nimbus.beescloud.com'
+            transformed.path == '/allure-docker-service/projects/temp-project/reports/latest.html'
+        }
+    }
+
+    def transformUrl_complexRoot(){
+        given:
+        def reportUrl = URL + '/complex/root/projects/temp-project/reports/latest.html'
+        def baseUrl = 'https://plugin-reports.nimbus.beescloud.com/allure/'
+
+        when:
+        URI transformed = new URI(SendTestReportsTask.transformToPublicUrl(reportUrl, baseUrl))
+
+        then:
+        verifyAll {
+            transformed.port == -1 || transformed.port == 443
+            transformed.scheme == 'https'
+            transformed.host == 'plugin-reports.nimbus.beescloud.com'
+            transformed.path == '/allure/projects/temp-project/reports/latest.html'
+        }
+    }
+
 
 }
