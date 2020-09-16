@@ -109,3 +109,15 @@ test {
 ...
 }
 ```
+
+
+### Changelog
+
+- 1.6.6
+  - Project property 'disableAllure' disables Allure injection
+
+- 1.6.3 
+  - Cleaner long secrets masking
+  
+- 1.6.0
+  - Ability to specify custom 'environments' folder

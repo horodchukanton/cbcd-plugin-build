@@ -28,8 +28,12 @@ class CDPluginBuild implements Plugin<Project> {
         // project.task(injectDependenciesTaskName, type: InjectDependenciesTask)
         // depsTask.dependsOn(injectDependenciesTaskName)
 
-        injectAllureConfig(project)
-        Task allureTask = project.task(allureTaskName, type: SendTestReportsTask)
+        boolean allureDisabled = project.hasProperty('disableAllure')
+
+        if (!allureDisabled){
+            injectAllureConfig(project)
+            project.task(allureTaskName, type: SendTestReportsTask)
+        }
 
         project.afterEvaluate {
             Task testTask = project.getTasksByName('test', false).first()
@@ -38,8 +42,11 @@ class CDPluginBuild implements Plugin<Project> {
             testTask.dependsOn(testConfigurationTaskName)
 
             // Define new task for Allure
-            testTask.finalizedBy(allureTaskName)
-            allureTask.mustRunAfter('test')
+            if (!allureDisabled){
+                Task allureTask = project.getTasksByName(allureTaskName, false)?.first()
+                testTask.finalizedBy(allureTaskName)
+                allureTask.mustRunAfter('test')
+            }
         }
 
     }

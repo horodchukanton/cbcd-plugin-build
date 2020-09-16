@@ -13,6 +13,7 @@ class SendTestReportsTask extends DefaultTask {
     private String serverUrl = project.findProperty('allureReportsServerUrl') ?: 'http://10.201.2.37:5050/allure-docker-service'
     private String projectName = ''
 
+    @Input
     String reportsBaseUrl = 'https://plugin-reports.nimbus.beescloud.com/allure-docker-service/'
 
     @TaskAction

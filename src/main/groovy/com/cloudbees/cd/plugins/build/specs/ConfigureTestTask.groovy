@@ -5,6 +5,7 @@ import groovy.transform.CompileStatic
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.testing.Test
 
@@ -20,28 +21,11 @@ class ConfigureTestTask extends DefaultTask {
     @Input
     boolean readEnvironmentVariables = true
 
-    @Input
+    @InputDirectory
     File environmentsLocation = getProject().getProjectDir()
 
     @Input
     String secretsProject = 'flow-plugin-team-test-harness'
-
-    static boolean isWindows() {
-        return (System.getenv("OS") =~ /Windows/)
-    }
-
-    static File findDirForProgram(String program) {
-        String path = System.getenv("PATH")
-
-        for (String dirname : path.split(File.pathSeparator).reverse()) {
-            File file = new File(dirname, program)
-            if (file.isFile() && file.canExecute()) {
-                return new File(dirname)
-            }
-        }
-
-        return null
-    }
 
     @TaskAction
     void configureProject() {
@@ -66,6 +50,23 @@ class ConfigureTestTask extends DefaultTask {
 
         task.outputs.upToDateWhen { false }
         task.systemProperty("EC_SPECS_CLI", true)
+    }
+
+    static boolean isWindows() {
+        return (System.getenv("OS") =~ /Windows/)
+    }
+
+    static File findDirForProgram(String program) {
+        String path = System.getenv("PATH")
+
+        for (String dirname : path.split(File.pathSeparator).reverse()) {
+            File file = new File(dirname, program)
+            if (file.isFile() && file.canExecute()) {
+                return new File(dirname)
+            }
+        }
+
+        return null
     }
 
     private void applyEnvironmentVariables(Test task, String filename, boolean mask) {
@@ -93,14 +94,19 @@ class ConfigureTestTask extends DefaultTask {
             if (value =~ /GCP-SECRET/) {
                 try {
                     value = resolveSecret(value)
-                    println "Resolved secret $key to ${'*' * value.size()}"
+                    println "Resolved secret $key to " + EnvironmentContainer.maskValue(value)
                 } catch (Throwable e) {
                     println("Failed to resolve secret: $e.message")
                 }
                 mask = true
             }
 
-            EnvironmentContainer.addVar(key, (mask ? ('*' * value.size()) : value))
+            String showValue = mask
+                    ? EnvironmentContainer.maskValue(value)
+                    : value
+
+            EnvironmentContainer.addVar(key, showValue)
+
             env.replace(key, value)
         }
 
