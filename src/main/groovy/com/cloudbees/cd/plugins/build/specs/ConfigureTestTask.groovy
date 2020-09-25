@@ -1,7 +1,7 @@
 package com.cloudbees.cd.plugins.build.specs
 
-import groovy.json.JsonSlurper
 import groovy.transform.CompileStatic
+import net.sf.json.groovy.JsonSlurper
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.tasks.Input

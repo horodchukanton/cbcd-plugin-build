@@ -112,6 +112,8 @@ test {
 
 
 ### Changelog
+- 1.6.8
+  - Handling of missing environment file/properties
 
 - 1.6.6
   - Project property 'disableAllure' disables Allure injection

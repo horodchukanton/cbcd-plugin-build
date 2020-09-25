@@ -45,7 +45,12 @@ class SendTestReportsTask extends DefaultTask {
                 client.createProject(projectName)
             }
 
-            saveEnvironment()
+            try {
+                saveEnvironment()
+            } catch (Throwable e){
+                println("Failed to save environment variables: " + e.getMessage())
+            }
+
             ArrayList<File> files = collectReportFiles()
             client.sendResults(projectName, files)
 
@@ -100,7 +105,7 @@ class SendTestReportsTask extends DefaultTask {
     File saveEnvironment() {
         Map<String, String> env = EnvironmentContainer.getAll()
 
-        String fileContent = ""
+        String fileContent = "\n"
         env.each { String k, Object v ->
             String value = v as String
             fileContent += "${k}=${value}\n"
