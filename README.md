@@ -112,6 +112,12 @@ test {
 
 
 ### Changelog
+- 1.7.0
+  - Added 'hen' task (Polina's majestic cd-plugin-test-framework)
+
+- 1.6.10
+  - Fixing "null" string value for empty environment variables
+
 - 1.6.8
   - Handling of missing environment file/properties
 
