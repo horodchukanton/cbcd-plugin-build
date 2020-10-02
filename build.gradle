@@ -12,6 +12,9 @@ sourceCompatibility = 1.8
 repositories {
     mavenCentral()
     maven {
+        url 'https://dl.bintray.com/ecpluginsdev/maven/'
+    }
+    maven {
         url "https://plugins.gradle.org/m2/"
     }
 }
@@ -20,6 +23,7 @@ dependencies {
     implementation group: 'org.codehaus.groovy.modules.http-builder', name: 'http-builder', version: '0.7.1'
     // Plugin should be declared as a dependency, so we can inject it to another projects
     implementation "io.qameta.allure:allure-gradle:2.8.1"
+    implementation 'com.cloudbees:hen:+'
     testImplementation group: 'org.spockframework', name: 'spock-core', version: '1.2-groovy-2.5'
 }
 
