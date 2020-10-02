@@ -137,11 +137,14 @@ class ConfigureTestTask extends DefaultTask {
         env.each { key, value ->
             println "Environment $key=${value}"
         }
+        println("\n")
     }
 
     private static void applyEnvironmentTo(Test task, Map<String, String> env) {
         env.each { key, value ->
-            task.environment(key, value)
+            if (value != null) {
+                task.environment(key, value)
+            }
         }
     }
 

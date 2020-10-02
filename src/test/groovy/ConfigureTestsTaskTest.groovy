@@ -26,6 +26,7 @@ class ConfigureTestsTaskTest extends Specification{
         then:
         Map<String, String> env = conf.readEnvironmentFrom(envFile)
         assert env['SECRET'] == "value"
+        assert env['EMPTY'] == null
     }
 
     def "Check secret resolved"(){
@@ -52,7 +53,7 @@ class ConfigureTestsTaskTest extends Specification{
         File envDir = new File(projectDir, defaultResourcesLocation)
         envDir.mkdirs()
         File envFile = new File(envDir, 'systemtest.env')
-        envFile.write("SIMPLE_VALUE=simple_value\n")
+        envFile.write("SIMPLE_VALUE=simple_value\nEMPTY_VALUE=\n")
 
         project.task('test', type: Test)
 
@@ -64,6 +65,7 @@ class ConfigureTestsTaskTest extends Specification{
         then:
         Test test = project.getTasksByName('test', false).first() as Test
         assert test.getEnvironment().get('SIMPLE_VALUE').equals('simple_value')
+        assert !test.getEnvironment().hasProperty('EMPTY_VALUE')
 
     }
 
