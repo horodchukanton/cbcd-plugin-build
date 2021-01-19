@@ -1,11 +1,18 @@
 import com.cloudbees.cd.plugins.build.allure.SendTestReportsTask
 import com.cloudbees.cd.plugins.build.allure.client.AllureServiceClient
+import spock.lang.IgnoreIf
 import spock.lang.Specification
 
+@IgnoreIf({!allureServerAvailable()})
 class AllureServiceClientTest extends Specification {
 
     static final URL = 'http://localhost:5050/allure-docker-service'
     static final String projectName = UUID.randomUUID().toString().toLowerCase()
+
+    static boolean allureServerAvailable() {
+        def client = new AllureServiceClient(URL)
+        return client.isServerAccessible()
+    }
 
     def constructor() {
         given:

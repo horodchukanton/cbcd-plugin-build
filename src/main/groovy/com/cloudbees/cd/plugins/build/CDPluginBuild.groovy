@@ -2,7 +2,7 @@ package com.cloudbees.cd.plugins.build
 
 import com.cloudbees.cd.plugins.build.allure.SendTestReportsTask
 import com.cloudbees.cd.plugins.build.specs.ConfigureTestTask
-import com.cloudbees.pdk.hen.plugin.GenerateClassesTask
+//import com.cloudbees.pdk.hen.plugin.GenerateClassesTask
 import groovy.transform.CompileStatic
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -25,7 +25,7 @@ class CDPluginBuild implements Plugin<Project> {
 
         Task configTask = project.task(testConfigurationTaskName, type: ConfigureTestTask)
 
-        Task hen = project.task(henTaskName, type: GenerateClassesTask)
+//        Task hen = project.task(henTaskName, type: GenerateClassesTask)
 
         // Dependencies should run right now
         // Task depsTask = project.getTasksByName('dependencies', false).first()

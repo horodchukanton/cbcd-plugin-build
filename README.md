@@ -112,6 +112,13 @@ test {
 
 
 ### Changelog
+
+- 1.8.1
+  - Fixed NPE with an empty secret value.
+
+- 1.8.0
+  - Removed 'hen' task (it uses external dependencies and prevents project compilation)
+  
 - 1.7.0
   - Added 'hen' task (Polina's majestic cd-plugin-test-framework)
 

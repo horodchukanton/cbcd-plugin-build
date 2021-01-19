@@ -6,7 +6,7 @@ plugins {
 }
 
 group 'com.cloudbees.cd.plugins'
-version '1.7.0' + (Boolean.valueOf(findProperty("release")) ? ".0" : "-SNAPSHOT")
+version '1.8.1' + (Boolean.valueOf(findProperty("release")) ? ".0" : "-SNAPSHOT")
 sourceCompatibility = 1.8
 
 repositories {
@@ -23,7 +23,7 @@ dependencies {
     implementation group: 'org.codehaus.groovy.modules.http-builder', name: 'http-builder', version: '0.7.1'
     // Plugin should be declared as a dependency, so we can inject it to another projects
     implementation "io.qameta.allure:allure-gradle:2.8.1"
-    implementation 'com.cloudbees:hen:+'
+//    implementation 'com.cloudbees:hen:+'
     testImplementation group: 'org.spockframework', name: 'spock-core', version: '1.2-groovy-2.5'
 }
 

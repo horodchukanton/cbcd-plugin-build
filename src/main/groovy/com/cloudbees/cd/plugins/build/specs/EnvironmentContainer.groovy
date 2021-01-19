@@ -21,6 +21,7 @@ class EnvironmentContainer {
     }
 
     static String maskValue(String value) {
+        if (!value) return '[empty]'
         return (value.size() <= 20)
                 ? ('*' * value.size())
                 : "[ masked ${value.size()} chars ]"

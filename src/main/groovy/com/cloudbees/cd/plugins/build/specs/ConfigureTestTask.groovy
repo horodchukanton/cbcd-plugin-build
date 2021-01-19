@@ -221,8 +221,6 @@ class ConfigureTestTask extends DefaultTask {
     }
 
     private File resolveEnvFilepath(String environmentName, String filename) {
-        Project project = this.project
-
         File envDir = new File(environmentsLocation, "environments/${environmentName}")
         assert envDir.exists() && envDir.isDirectory(): "Assert: Environment '${environmentName}' exists and is a directory at ${envDir.absolutePath}"
 

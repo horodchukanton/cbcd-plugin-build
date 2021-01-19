@@ -25,8 +25,11 @@ class ConfigureTestsTaskTest extends Specification{
 
         then:
         Map<String, String> env = conf.readEnvironmentFrom(envFile)
-        assert env['SECRET'] == "value"
-        assert env['EMPTY'] == null
+        verifyAll {
+            env['SECRET'] == "value"
+            env['EMPTY'] == null
+            env['WITH_QUOTES'] == "'test'"
+        }
     }
 
     def "Check secret resolved"(){
