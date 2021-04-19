@@ -153,7 +153,7 @@ class ConfigureTestTask extends DefaultTask {
         String secretName = value.replaceAll(/\(\(GCP-SECRET:\s+/, '').replaceAll(/\)\)/, '')
         println "Trying to resolve secret $secretName"
         String versionsRaw = executeCommand("gcloud", "--project", secretsProject,
-                "beta", "secrets", "versions", "list", secretName, "--format", "json")
+               "secrets", "versions", "list", secretName, "--format", "json")
         List<Map> versions = new JsonSlurper().parseText(versionsRaw) as List<Map>
         int latestVersion = 0
         for (Map version in versions) {
@@ -171,7 +171,6 @@ class ConfigureTestTask extends DefaultTask {
             String secret = executeCommand("gcloud",
                     "--project",
                     secretsProject,
-                    "beta",
                     "secrets",
                     "versions",
                     "access",
@@ -194,7 +193,9 @@ class ConfigureTestTask extends DefaultTask {
             if (programDir == null) {
                 throw new RuntimeException("Cannot find gcloud executable in PATH")
             }
-            pb.directory(programDir)
+
+            cmd[0] = new File(programDir, program + ".cmd")
+            System.err.println(cmd.join(' '))
         }
 
         Process process = pb.start()
@@ -206,11 +207,13 @@ class ConfigureTestTask extends DefaultTask {
         StringBuilder out = new StringBuilder()
         String line
         while (line = stdOut.readLine()) {
+//            System.err.println("OUT:" + line)
             out.append(line)
             out.append(System.lineSeparator())
         }
         StringBuilder err = new StringBuilder()
         while (line = stdError.readLines()) {
+//            System.err.println("ERR:" + line)
             err.append(line)
             err.append(System.lineSeparator())
         }
